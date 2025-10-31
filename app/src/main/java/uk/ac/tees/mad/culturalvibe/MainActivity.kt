@@ -11,6 +11,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import uk.ac.tees.mad.culturalvibe.ui.AppViewModel
+import uk.ac.tees.mad.culturalvibe.ui.screens.SplashScreen
 import uk.ac.tees.mad.culturalvibe.ui.theme.CulturalVibeTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,29 +25,32 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CulturalVibeTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                App()
             }
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+sealed class NavComponents(val route : String){
+    object SplashScreen : NavComponents("splash")
+    object AuthScreen : NavComponents("auth")
+    object HomeScreen : NavComponents("home")
 }
 
-@Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-    CulturalVibeTheme {
-        Greeting("Android")
+fun App(modifier: Modifier = Modifier) {
+    val navController = rememberNavController()
+    val viewModel : AppViewModel = viewModel()
+
+    NavHost(navController, startDestination = NavComponents.SplashScreen.route) {
+        composable(NavComponents.SplashScreen.route) {
+            SplashScreen(navController, viewModel)
+        }
+        composable(NavComponents.AuthScreen.route) {
+            //AuthScreen()
+        }
+        composable(NavComponents.HomeScreen.route) {
+            //HomeScreen()
+        }
     }
 }
