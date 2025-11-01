@@ -16,6 +16,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import uk.ac.tees.mad.culturalvibe.ui.AppViewModel
+import uk.ac.tees.mad.culturalvibe.ui.screens.AuthScreen
 import uk.ac.tees.mad.culturalvibe.ui.screens.SplashScreen
 import uk.ac.tees.mad.culturalvibe.ui.theme.CulturalVibeTheme
 
@@ -42,12 +43,12 @@ fun App(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     val viewModel : AppViewModel = viewModel()
 
-    NavHost(navController, startDestination = NavComponents.SplashScreen.route) {
+    NavHost(navController, startDestination = NavComponents.AuthScreen.route) {
         composable(NavComponents.SplashScreen.route) {
             SplashScreen(navController, viewModel)
         }
         composable(NavComponents.AuthScreen.route) {
-            //AuthScreen()
+            AuthScreen(navController, viewModel)
         }
         composable(NavComponents.HomeScreen.route) {
             //HomeScreen()
