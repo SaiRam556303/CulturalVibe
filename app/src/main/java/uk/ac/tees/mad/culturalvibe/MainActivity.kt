@@ -15,11 +15,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import dagger.hilt.android.AndroidEntryPoint
 import uk.ac.tees.mad.culturalvibe.ui.AppViewModel
 import uk.ac.tees.mad.culturalvibe.ui.screens.AuthScreen
 import uk.ac.tees.mad.culturalvibe.ui.screens.SplashScreen
 import uk.ac.tees.mad.culturalvibe.ui.theme.CulturalVibeTheme
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
