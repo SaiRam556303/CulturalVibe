@@ -18,27 +18,30 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import kotlinx.coroutines.delay
+import uk.ac.tees.mad.culturalvibe.NavComponents
 import uk.ac.tees.mad.culturalvibe.ui.AppViewModel
 import uk.ac.tees.mad.culturalvibe.ui.theme.PrimaryColor
+import kotlin.math.log
 
 @Composable
 fun SplashScreen(
     navController: NavController,
     splashViewModel: AppViewModel
 ) {
-//    LaunchedEffect(key1 = true) {
-//        delay(2000) // 2 seconds splash delay
-//        val isUserLoggedIn = splashViewModel.isUserLoggedIn()
-//        if (isUserLoggedIn) {
-//            navController.navigate("home") {
-//                popUpTo("splash") { inclusive = true }
-//            }
-//        } else {
-//            navController.navigate("auth") {
-//                popUpTo("splash") { inclusive = true }
-//            }
-//        }
-//    }
+
+    val loggedInUsr = splashViewModel.isUserLoggedIn.collectAsState().value
+    LaunchedEffect(key1 = true) {
+        delay(2000)
+        if (loggedInUsr) {
+            navController.navigate(NavComponents.HomeScreen.route) {
+                popUpTo(0)
+            }
+        } else {
+            navController.navigate(NavComponents.AuthScreen.route) {
+                popUpTo(0)
+            }
+        }
+    }
 
     Box(
         modifier = Modifier

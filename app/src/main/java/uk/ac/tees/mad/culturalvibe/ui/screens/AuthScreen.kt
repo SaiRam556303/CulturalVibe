@@ -1,5 +1,6 @@
 package uk.ac.tees.mad.culturalvibe.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,11 +17,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,12 +32,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
 import uk.ac.tees.mad.culturalvibe.ui.AppViewModel
 import uk.ac.tees.mad.culturalvibe.ui.theme.OnSecondary
 import uk.ac.tees.mad.culturalvibe.ui.theme.PrimaryColor
@@ -45,7 +51,17 @@ fun AuthScreen(
     authViewModel: AppViewModel
 ) {
     var isLogin by remember { mutableStateOf(true) }
+    val context = LocalContext.current
+    val isLoggedin = authViewModel.isUserLoggedIn.collectAsState().value
+    val loading  = authViewModel.loading
 
+    LaunchedEffect(isLoggedin) {
+        if (isLoggedin) {
+            navController.navigate("home"){
+                popUpTo(0)
+            }
+        }
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -91,11 +107,23 @@ fun AuthScreen(
 
             AuthForm(
                 isLogin = isLogin,
+                isloading = loading.value,
                 onSubmit = { name, email, password ->
                     if (isLogin) {
-                        //authViewModel.login(email, password, navController)
-                    } else {
-                        //authViewModel.signup(name, email, password, navController)
+                        if (!email.isEmpty() || !password.isEmpty()) {
+                            authViewModel.login(
+                                context = context,
+                                email = email,
+                                password = password,
+                            )
+                        }else{
+                            Toast.makeText(context, "Please fill all the fields", Toast.LENGTH_SHORT).show()
+                        }
+                    }else {
+                        if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                            Toast.makeText(context, "Please fill all the fields", Toast.LENGTH_SHORT).show()
+                        }
+                        authViewModel.signup(context = context,name = name,email = email,password = password)
                     }
                 }
             )
@@ -121,6 +149,7 @@ fun AuthScreen(
 @Composable
 fun AuthForm(
     isLogin: Boolean,
+    isloading: Boolean,
     onSubmit: (String, String, String) -> Unit
 ) {
     var name by remember { mutableStateOf("") }
@@ -175,7 +204,8 @@ fun AuthForm(
     Spacer(modifier = Modifier.height(20.dp))
 
     Button(
-        onClick = { onSubmit(name, email, password) },
+        onClick = {
+            onSubmit(name, email, password) },
         modifier = Modifier
             .fillMaxWidth()
             .height(50.dp),
@@ -183,12 +213,17 @@ fun AuthForm(
         colors = ButtonDefaults.buttonColors(
             containerColor = SecondaryColor,
             contentColor = OnSecondary
-        )
+        ),
+        enabled = !isloading
     ) {
-        Text(
-            text = if (isLogin) "Login" else "Sign Up",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.SemiBold
-        )
+        if (isloading){
+            LinearProgressIndicator()
+        }else {
+            Text(
+                text = if (isLogin) "Login" else "Sign Up",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
     }
 }
