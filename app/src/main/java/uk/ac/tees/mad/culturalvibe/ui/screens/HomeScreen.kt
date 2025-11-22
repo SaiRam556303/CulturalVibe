@@ -29,6 +29,7 @@ import uk.ac.tees.mad.culturalvibe.ui.theme.SecondaryColor
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.ui.text.font.FontWeight
+import kotlinx.coroutines.launch
 
 data class Event(
     val id: Int,
@@ -75,25 +76,45 @@ val dummyGalleryImages = listOf(
 @Composable
 fun HomeScreen(navController: NavController, viewModel: AppViewModel) {
     var events by remember { mutableStateOf(dummyEvents) }
-    val pagerState = rememberPagerState(pageCount = { 2 }) // 2 pages → Events + Gallery
+    val pagerState = rememberPagerState(pageCount = { 2 })
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = if (pagerState.currentPage == 0) "CulturalVibe Events" else "Event Gallery",
-                        fontSize = 22.sp,
-                        color = OnSecondary
+            Column {
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = "CulturalVibe",
+                            fontSize = 22.sp,
+                            color = OnSecondary
+                        )
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = PrimaryColor
                     )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = PrimaryColor
                 )
-            )
+
+                TabRow(
+                    selectedTabIndex = pagerState.currentPage,
+                    containerColor = PrimaryColor,
+                    contentColor = OnSecondary
+                ) {
+                    Tab(
+                        selected = pagerState.currentPage == 0,
+                        onClick = { scope.launch { pagerState.animateScrollToPage(0) } },
+                        text = { Text("Events") }
+                    )
+                    Tab(
+                        selected = pagerState.currentPage == 1,
+                        onClick = { scope.launch { pagerState.animateScrollToPage(1) } },
+                        text = { Text("Gallery") }
+                    )
+                }
+            }
         },
         floatingActionButton = {
-            if (pagerState.currentPage == 0) { // FAB only on Events screen
+            if (pagerState.currentPage == 0) {
                 FloatingActionButton(
                     onClick = { /* navController.navigate("registration") */ },
                     containerColor = SecondaryColor,
@@ -209,7 +230,7 @@ fun GalleryScreen() {
                     model = dummyGalleryImages[index],
                     contentDescription = "Gallery Image",
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
                 )
             }
         }
