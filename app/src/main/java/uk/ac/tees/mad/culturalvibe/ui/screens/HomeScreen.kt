@@ -2,6 +2,7 @@ package uk.ac.tees.mad.culturalvibe.ui.screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -30,15 +31,19 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.ui.text.font.FontWeight
 import kotlinx.coroutines.launch
+import uk.ac.tees.mad.culturalvibe.NavComponents
 
 data class Event(
     val id: Int,
     val title: String,
     val date: String,
     val description: String,
+    val venue: String,
+    val fee: Double,
     val imageUrl: String,
     var isBookmarked: Boolean = false
 )
+
 
 val dummyEvents = listOf(
     Event(
@@ -46,6 +51,8 @@ val dummyEvents = listOf(
         "Cultural Night 2025",
         "12th Sept 2025",
         "An evening full of music, dance, and fun!",
+        "Main Auditorium",
+        10.0,
         "https://images.unsplash.com/photo-1507874457470-272b3c8d8ee2"
     ),
     Event(
@@ -53,6 +60,8 @@ val dummyEvents = listOf(
         "Photography Workshop",
         "15th Sept 2025",
         "Learn portrait & event photography basics.",
+        "Room 204, Arts Block",
+        5.0,
         "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e"
     ),
     Event(
@@ -60,9 +69,12 @@ val dummyEvents = listOf(
         "Drama Club Auditions",
         "18th Sept 2025",
         "Showcase your acting talent.",
+        "Drama Hall",
+        0.0,
         "https://media.istockphoto.com/id/182860581/photo/empty-theater-from-the-view-of-the-back-row.jpg?s=1024x1024&w=is&k=20&c=YZaS9PpEWtnXjdVfrJgB5LscungL78sAfbSwLXJthRg="
     )
 )
+
 
 val dummyGalleryImages = listOf(
     "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4",
@@ -132,11 +144,11 @@ fun HomeScreen(navController: NavController, viewModel: AppViewModel) {
                 .padding(innerPadding)
         ) { page ->
             when (page) {
-                0 -> EventsList(events) { id ->
+                0 -> EventsList(events = events,{ id ->
                     events = events.map {
                         if (it.id == id) it.copy(isBookmarked = !it.isBookmarked) else it
                     }
-                }
+                }, navController = navController)
                 1 -> GalleryScreen()
             }
         }
@@ -144,7 +156,7 @@ fun HomeScreen(navController: NavController, viewModel: AppViewModel) {
 }
 
 @Composable
-fun EventsList(events: List<Event>, onBookmarkClick: (Int) -> Unit) {
+fun EventsList(events: List<Event>, onBookmarkClick: (Int) -> Unit, navController: NavController) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -153,15 +165,24 @@ fun EventsList(events: List<Event>, onBookmarkClick: (Int) -> Unit) {
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         items(events) { event ->
-            EventCard(event, onBookmarkClick)
+            EventCard(
+                event = event,
+                onBookmarkClick = onBookmarkClick,
+                onClick = { selectedEvent ->
+                    navController.navigate(NavComponents.EventDetails.passId(selectedEvent.id))
+                }
+            )
+
         }
     }
 }
 
 @Composable
-fun EventCard(event: Event, onBookmarkClick: (Int) -> Unit) {
+fun EventCard(event: Event, onBookmarkClick: (Int) -> Unit, onClick: (Event) -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick(event) },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(6.dp)
     ) {
@@ -195,19 +216,18 @@ fun EventCard(event: Event, onBookmarkClick: (Int) -> Unit) {
             }
 
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = event.title,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Text(event.title, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = event.date, fontSize = 14.sp, color = PrimaryColor)
+                Text(event.date, fontSize = 14.sp, color = PrimaryColor)
+                Text("Venue: ${event.venue}", fontSize = 14.sp)
+                Text("Fee: $${event.fee}", fontSize = 14.sp, color = SecondaryColor)
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(text = event.description, fontSize = 14.sp)
+                Text(event.description, fontSize = 14.sp)
             }
         }
     }
 }
+
 
 @Composable
 fun GalleryScreen() {
