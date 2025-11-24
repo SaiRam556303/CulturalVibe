@@ -43,9 +43,7 @@ sealed class NavComponents(val route : String){
     object SplashScreen : NavComponents("splash")
     object AuthScreen : NavComponents("auth")
     object HomeScreen : NavComponents("home")
-    object EventDetails : NavComponents("eventDetails/{eventId}") {
-        fun passId(eventId: Int) = "eventDetails/$eventId"
-    }
+    
 }
 
 @Composable
@@ -63,18 +61,6 @@ fun App(modifier: Modifier = Modifier) {
         composable(NavComponents.HomeScreen.route) {
             HomeScreen(navController, viewModel  )
         }
-        composable(
-            route = NavComponents.EventDetails.route,
-            arguments = listOf(navArgument("eventId") { type = NavType.IntType })
-        ) { backStackEntry ->
-            val eventId = backStackEntry.arguments?.getInt("eventId")
-            val event = dummyEvents.find { it.id == eventId }
 
-            if (event != null) {
-                EventDetailsScreen(navController, event, viewModel)
-            } else {
-                Text("Event not found")
-            }
-        }
     }
 }

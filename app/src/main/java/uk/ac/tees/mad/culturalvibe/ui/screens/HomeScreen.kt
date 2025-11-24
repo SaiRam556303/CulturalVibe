@@ -30,6 +30,7 @@ import uk.ac.tees.mad.culturalvibe.ui.theme.SecondaryColor
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.launch
 import uk.ac.tees.mad.culturalvibe.NavComponents
 
@@ -169,7 +170,7 @@ fun EventsList(events: List<Event>, onBookmarkClick: (Int) -> Unit, navControlle
                 event = event,
                 onBookmarkClick = onBookmarkClick,
                 onClick = { selectedEvent ->
-                    navController.navigate(NavComponents.EventDetails.passId(selectedEvent.id))
+                    //navController.navigate(NavComponents.EventDetails.passId(selectedEvent.id))
                 }
             )
 
@@ -252,6 +253,118 @@ fun GalleryScreen() {
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
                 )
+            }
+        }
+    }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true, name = "CulturalVibe – Home Screen (Events Tab)")
+@Composable
+fun HomeScreenPreview_Events() {
+    var events by remember {
+        mutableStateOf(dummyEvents)
+    }
+
+    Scaffold(
+        topBar = {
+            Column {
+                TopAppBar(
+                    title = {
+                        Text("CulturalVibe", fontSize = 22.sp, color = OnSecondary)
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = PrimaryColor)
+                )
+                TabRow(
+                    selectedTabIndex = 0,
+                    containerColor = PrimaryColor,
+                    contentColor = OnSecondary
+                ) {
+                    Tab(selected = true, onClick = {}, text = { Text("Events") })
+                    Tab(selected = false, onClick = {}, text = { Text("Gallery") })
+                }
+            }
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {},
+                containerColor = SecondaryColor,
+                contentColor = OnSecondary
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Add Event")
+            }
+        }
+    ) { paddingValues ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(events) { event ->
+                EventCard(
+                    event = event,
+                    onBookmarkClick = { id ->
+                        events = events.map {
+                            if (it.id == id) it.copy(isBookmarked = !it.isBookmarked) else it
+                        }
+                    },
+                    onClick = {}
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true, name = "CulturalVibe – Home Screen (Gallery Tab)")
+@Composable
+fun HomeScreenPreview_Gallery() {
+    Scaffold(
+        topBar = {
+            Column {
+                TopAppBar(
+                    title = {
+                        Text("CulturalVibe", fontSize = 22.sp, color = OnSecondary)
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = PrimaryColor)
+                )
+                TabRow(
+                    selectedTabIndex = 1,
+                    containerColor = PrimaryColor,
+                    contentColor = OnSecondary
+                ) {
+                    Tab(selected = false, onClick = {}, text = { Text("Events") })
+                    Tab(selected = true, onClick = {}, text = { Text("Gallery") })
+                }
+            }
+        }
+    ) { paddingValues ->
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(dummyGalleryImages.size) { index ->
+                Card(
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.cardElevation(4.dp)
+                ) {
+                    AsyncImage(
+                        model = dummyGalleryImages[index],
+                        contentDescription = "Gallery Image",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(160.dp)
+                    )
+                }
             }
         }
     }
