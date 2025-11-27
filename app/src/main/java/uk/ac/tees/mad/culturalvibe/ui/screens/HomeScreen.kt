@@ -30,52 +30,10 @@ import uk.ac.tees.mad.culturalvibe.ui.theme.SecondaryColor
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.launch
 import uk.ac.tees.mad.culturalvibe.NavComponents
-
-data class Event(
-    val id: Int,
-    val title: String,
-    val date: String,
-    val description: String,
-    val venue: String,
-    val fee: Double,
-    val imageUrl: String,
-    var isBookmarked: Boolean = false
-)
-
-
-val dummyEvents = listOf(
-    Event(
-        1,
-        "Cultural Night 2025",
-        "12th Sept 2025",
-        "An evening full of music, dance, and fun!",
-        "Main Auditorium",
-        10.0,
-        "https://images.unsplash.com/photo-1507874457470-272b3c8d8ee2"
-    ),
-    Event(
-        2,
-        "Photography Workshop",
-        "15th Sept 2025",
-        "Learn portrait & event photography basics.",
-        "Room 204, Arts Block",
-        5.0,
-        "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e"
-    ),
-    Event(
-        3,
-        "Drama Club Auditions",
-        "18th Sept 2025",
-        "Showcase your acting talent.",
-        "Drama Hall",
-        0.0,
-        "https://media.istockphoto.com/id/182860581/photo/empty-theater-from-the-view-of-the-back-row.jpg?s=1024x1024&w=is&k=20&c=YZaS9PpEWtnXjdVfrJgB5LscungL78sAfbSwLXJthRg="
-    )
-)
-
+import uk.ac.tees.mad.culturalvibe.data.models.Event
+import java.text.SimpleDateFormat
 
 val dummyGalleryImages = listOf(
     "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4",
@@ -88,7 +46,7 @@ val dummyGalleryImages = listOf(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(navController: NavController, viewModel: AppViewModel) {
-    var events by remember { mutableStateOf(dummyEvents) }
+    val events = viewModel.events.collectAsState().value
     val pagerState = rememberPagerState(pageCount = { 2 })
     val scope = rememberCoroutineScope()
 
@@ -129,7 +87,8 @@ fun HomeScreen(navController: NavController, viewModel: AppViewModel) {
         floatingActionButton = {
             if (pagerState.currentPage == 0) {
                 FloatingActionButton(
-                    onClick = { /* navController.navigate("registration") */ },
+                    onClick = {
+                    /* navController.navigate("registration") */ },
                     containerColor = SecondaryColor,
                     contentColor = OnSecondary
                 ) {
@@ -146,9 +105,7 @@ fun HomeScreen(navController: NavController, viewModel: AppViewModel) {
         ) { page ->
             when (page) {
                 0 -> EventsList(events = events,{ id ->
-                    events = events.map {
-                        if (it.id == id) it.copy(isBookmarked = !it.isBookmarked) else it
-                    }
+
                 }, navController = navController)
                 1 -> GalleryScreen()
             }
@@ -170,7 +127,7 @@ fun EventsList(events: List<Event>, onBookmarkClick: (Int) -> Unit, navControlle
                 event = event,
                 onBookmarkClick = onBookmarkClick,
                 onClick = { selectedEvent ->
-                    //navController.navigate(NavComponents.EventDetails.passId(selectedEvent.id))
+                    navController.navigate(NavComponents.EventDetails.passId(selectedEvent.id))
                 }
             )
 
@@ -209,7 +166,7 @@ fun EventCard(event: Event, onBookmarkClick: (Int) -> Unit, onClick: (Event) -> 
                         .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f))
                 ) {
                     Icon(
-                        imageVector = if (event.isBookmarked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                        imageVector = Icons.Default.Bookmark,
                         contentDescription = "Bookmark",
                         tint = SecondaryColor
                     )
@@ -219,7 +176,7 @@ fun EventCard(event: Event, onBookmarkClick: (Int) -> Unit, onClick: (Event) -> 
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(event.title, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(event.date, fontSize = 14.sp, color = PrimaryColor)
+                Text(SimpleDateFormat("dd/MM/yyyy").format(event.date?.toDate()), fontSize = 14.sp, color = PrimaryColor)
                 Text("Venue: ${event.venue}", fontSize = 14.sp)
                 Text("Fee: $${event.fee}", fontSize = 14.sp, color = SecondaryColor)
                 Spacer(modifier = Modifier.height(8.dp))
@@ -253,118 +210,6 @@ fun GalleryScreen() {
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
                 )
-            }
-        }
-    }
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = true, name = "CulturalVibe – Home Screen (Events Tab)")
-@Composable
-fun HomeScreenPreview_Events() {
-    var events by remember {
-        mutableStateOf(dummyEvents)
-    }
-
-    Scaffold(
-        topBar = {
-            Column {
-                TopAppBar(
-                    title = {
-                        Text("CulturalVibe", fontSize = 22.sp, color = OnSecondary)
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = PrimaryColor)
-                )
-                TabRow(
-                    selectedTabIndex = 0,
-                    containerColor = PrimaryColor,
-                    contentColor = OnSecondary
-                ) {
-                    Tab(selected = true, onClick = {}, text = { Text("Events") })
-                    Tab(selected = false, onClick = {}, text = { Text("Gallery") })
-                }
-            }
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {},
-                containerColor = SecondaryColor,
-                contentColor = OnSecondary
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Event")
-            }
-        }
-    ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(events) { event ->
-                EventCard(
-                    event = event,
-                    onBookmarkClick = { id ->
-                        events = events.map {
-                            if (it.id == id) it.copy(isBookmarked = !it.isBookmarked) else it
-                        }
-                    },
-                    onClick = {}
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = true, name = "CulturalVibe – Home Screen (Gallery Tab)")
-@Composable
-fun HomeScreenPreview_Gallery() {
-    Scaffold(
-        topBar = {
-            Column {
-                TopAppBar(
-                    title = {
-                        Text("CulturalVibe", fontSize = 22.sp, color = OnSecondary)
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = PrimaryColor)
-                )
-                TabRow(
-                    selectedTabIndex = 1,
-                    containerColor = PrimaryColor,
-                    contentColor = OnSecondary
-                ) {
-                    Tab(selected = false, onClick = {}, text = { Text("Events") })
-                    Tab(selected = true, onClick = {}, text = { Text("Gallery") })
-                }
-            }
-        }
-    ) { paddingValues ->
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(dummyGalleryImages.size) { index ->
-                Card(
-                    shape = RoundedCornerShape(12.dp),
-                    elevation = CardDefaults.cardElevation(4.dp)
-                ) {
-                    AsyncImage(
-                        model = dummyGalleryImages[index],
-                        contentDescription = "Gallery Image",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(160.dp)
-                    )
-                }
             }
         }
     }

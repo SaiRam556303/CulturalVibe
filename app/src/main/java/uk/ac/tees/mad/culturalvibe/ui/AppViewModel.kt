@@ -1,15 +1,21 @@
 package uk.ac.tees.mad.culturalvibe.ui
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import uk.ac.tees.mad.culturalvibe.data.models.Event
 import uk.ac.tees.mad.culturalvibe.data.models.User
+import java.text.SimpleDateFormat
+import java.util.Locale
 import javax.inject.Inject
+
 
 @HiltViewModel
 class AppViewModel @Inject constructor( private val auth : FirebaseAuth,
@@ -18,8 +24,25 @@ class AppViewModel @Inject constructor( private val auth : FirebaseAuth,
     val loading = mutableStateOf(false)
     val isUserLoggedIn = MutableStateFlow(false)
 
+    val events = MutableStateFlow<List<Event>>(emptyList())
     init {
         isUserLoggedIn.value = auth.currentUser != null
+        getEvents()
+    }
+
+    fun getEvents(){
+        firestore.collection("events").get()
+            .addOnSuccessListener {
+                val eventList = it.documents.mapNotNull {
+                    it.toObject(Event::class.java)
+                }
+                Log.d("events", eventList.toString())
+                events.value = eventList
+                Log.d("events", events.value.toString())
+            }
+            .addOnFailureListener {
+                Log.d("error", it.localizedMessage)
+            }
     }
 
     fun signup(context : Context,name : String, email : String, password : String){

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -23,7 +24,6 @@ import uk.ac.tees.mad.culturalvibe.ui.screens.AuthScreen
 import uk.ac.tees.mad.culturalvibe.ui.screens.EventDetailsScreen
 import uk.ac.tees.mad.culturalvibe.ui.screens.HomeScreen
 import uk.ac.tees.mad.culturalvibe.ui.screens.SplashScreen
-import uk.ac.tees.mad.culturalvibe.ui.screens.dummyEvents
 import uk.ac.tees.mad.culturalvibe.ui.theme.CulturalVibeTheme
 
 @AndroidEntryPoint
@@ -43,7 +43,9 @@ sealed class NavComponents(val route : String){
     object SplashScreen : NavComponents("splash")
     object AuthScreen : NavComponents("auth")
     object HomeScreen : NavComponents("home")
-    
+    object EventDetails : NavComponents("eventDetails/{eventId}") {
+        fun passId(eventId: Int) = "eventDetails/$eventId"
+    }
 }
 
 @Composable
@@ -60,7 +62,21 @@ fun App(modifier: Modifier = Modifier) {
         }
         composable(NavComponents.HomeScreen.route) {
             HomeScreen(navController, viewModel  )
-        }
 
+
+        }
+        composable(
+            route = NavComponents.EventDetails.route,
+            arguments = listOf(navArgument("eventId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val eventId = backStackEntry.arguments?.getInt("eventId")
+            val event = viewModel.events.collectAsState().value.find { it.id == eventId }
+
+            if (event != null) {
+                EventDetailsScreen(navController, event, viewModel)
+            } else {
+                Text("Event not found")
+            }
+        }
     }
 }
