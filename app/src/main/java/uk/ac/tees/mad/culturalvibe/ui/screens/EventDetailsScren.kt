@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -28,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,16 +46,17 @@ fun EventDetailsScreen(
     event: Event,
     viewModel: AppViewModel
 ) {
-    var isRegistered by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(event.title) },
+                title = { Text(event.title, color = MaterialTheme.colorScheme.onPrimary) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back",
+                            tint = MaterialTheme.colorScheme.onPrimary)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = PrimaryColor)
@@ -64,21 +65,19 @@ fun EventDetailsScreen(
         bottomBar = {
             Button(
                 onClick = {
-                    if (!isRegistered) showDialog = true
+                    if (!viewModel.isRegistered(event)) showDialog = true
                     else {
-                        // unregister logic
-                        isRegistered = false
-                        // remove from Firestore
+                        viewModel.unregisterFromEvent(id = event.id, context = context)
                     }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (!isRegistered) SecondaryColor else MaterialTheme.colorScheme.error
+                    containerColor = if (!viewModel.isRegistered(event)) SecondaryColor else MaterialTheme.colorScheme.error
                 )
             ) {
-                Text(if (!isRegistered) "Register" else "Unregister")
+                Text(if (!viewModel.isRegistered(event)) "Register" else "Unregister")
             }
         }
     ) { innerPadding ->
@@ -112,8 +111,7 @@ fun EventDetailsScreen(
             onDismissRequest = { showDialog = false },
             confirmButton = {
                 TextButton(onClick = {
-                    // Firestore save registration
-                    isRegistered = true
+                    viewModel.registerToEvent(event.id, context)
                     showDialog = false
                 }) {
                     Text("Confirm")
@@ -128,9 +126,9 @@ fun EventDetailsScreen(
             text = {
                 Column {
                     Text("Please confirm your registration. Fee: $${event.fee}")
-                    // Can add TextFields for details like name, email, etc.
                 }
             }
         )
     }
 }
+
