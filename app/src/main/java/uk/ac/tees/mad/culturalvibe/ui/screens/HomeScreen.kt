@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import kotlinx.coroutines.launch
 import uk.ac.tees.mad.culturalvibe.NavComponents
 import uk.ac.tees.mad.culturalvibe.data.models.Event
+import uk.ac.tees.mad.culturalvibe.ui.components.EventCard
 import java.text.SimpleDateFormat
 
 val dummyGalleryImages = listOf(
@@ -135,56 +136,7 @@ fun EventsList(events: List<Event>, onBookmarkClick: (Int) -> Unit, navControlle
     }
 }
 
-@Composable
-fun EventCard(event: Event, onBookmarkClick: (Int) -> Unit, onClick: (Event) -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick(event) },
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(6.dp)
-    ) {
-        Column {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp)
-            ) {
-                AsyncImage(
-                    model = event.imageUrl,
-                    contentDescription = event.title,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
 
-                IconButton(
-                    onClick = { onBookmarkClick(event.id) },
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(8.dp)
-                        .clip(RoundedCornerShape(50))
-                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f))
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Bookmark,
-                        contentDescription = "Bookmark",
-                        tint = SecondaryColor
-                    )
-                }
-            }
-
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(event.title, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(SimpleDateFormat("dd/MM/yyyy").format(event.date?.toDate()), fontSize = 14.sp, color = PrimaryColor)
-                Text("Venue: ${event.venue}", fontSize = 14.sp)
-                Text("Fee: $${event.fee}", fontSize = 14.sp, color = SecondaryColor)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(event.description, fontSize = 14.sp)
-            }
-        }
-    }
-}
 
 
 @Composable

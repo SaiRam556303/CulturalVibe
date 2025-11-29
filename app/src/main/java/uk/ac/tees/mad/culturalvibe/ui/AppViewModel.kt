@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class AppViewModel @Inject constructor( private val auth : FirebaseAuth,
+class AppViewModel @Inject constructor( val auth : FirebaseAuth,
                                         private val firestore : FirebaseFirestore) : ViewModel() {
 
     val loading = mutableStateOf(false)
