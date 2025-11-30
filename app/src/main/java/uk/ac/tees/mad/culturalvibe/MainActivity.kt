@@ -57,7 +57,7 @@ fun App(modifier: Modifier = Modifier) {
         }
         composable(NavComponents.AuthScreen.route) {
             AuthScreen(navController, viewModel)
-        } 
+        }
         composable(NavComponents.HomeScreen.route) {
             HomeScreen(navController, viewModel)
         }

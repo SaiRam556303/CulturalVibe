@@ -1,9 +1,12 @@
 package uk.ac.tees.mad.culturalvibe.data.models
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.google.firebase.Timestamp
 
+@Entity(tableName = "bookmarked_events")
 data class Event(
-    val id: Int = 0,
+    @PrimaryKey val id: Int = 0,
     val title: String = "",
     val date: Timestamp? = null,
     val description: String = "",
