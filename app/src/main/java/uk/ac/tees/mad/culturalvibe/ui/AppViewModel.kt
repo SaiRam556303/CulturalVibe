@@ -5,19 +5,27 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
+import uk.ac.tees.mad.culturalvibe.data.local.EventDao
 import uk.ac.tees.mad.culturalvibe.data.models.Event
 import uk.ac.tees.mad.culturalvibe.data.models.User
 import javax.inject.Inject
 
 
 @HiltViewModel
-class AppViewModel @Inject constructor( val auth : FirebaseAuth,
-                                        private val firestore : FirebaseFirestore) : ViewModel() {
+class AppViewModel @Inject constructor(
+    val auth : FirebaseAuth,
+    private val firestore : FirebaseFirestore,
+    private val eventDao: EventDao
+) : ViewModel() {
 
     val loading = mutableStateOf(false)
     val isUserLoggedIn = MutableStateFlow(false)
@@ -28,6 +36,20 @@ class AppViewModel @Inject constructor( val auth : FirebaseAuth,
         getEvents()
     }
 
+    fun addBookmark(event: Event) {
+        viewModelScope.launch {
+            eventDao.addBookmark(event)
+        }
+    }
+    fun removeBookmark(event: Event) {
+        viewModelScope.launch {
+            eventDao.deleteBookmark(event)
+        }
+    }
+
+    fun getBookmarks(): Flow<List<Event>> = flow {
+        emit(eventDao.getAllBookmarks())
+    }
     fun registerToEvent(id: Int, context: Context) {
         val userUid = auth.currentUser?.uid
         if (userUid != null){

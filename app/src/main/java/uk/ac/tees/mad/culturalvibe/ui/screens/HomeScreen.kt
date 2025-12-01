@@ -29,7 +29,9 @@ import uk.ac.tees.mad.culturalvibe.ui.theme.PrimaryColor
 import uk.ac.tees.mad.culturalvibe.ui.theme.SecondaryColor
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.launch
 import uk.ac.tees.mad.culturalvibe.NavComponents
 import uk.ac.tees.mad.culturalvibe.data.models.Event
@@ -162,6 +164,136 @@ fun GalleryScreen() {
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
                 )
+            }
+        }
+    }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true, name = "CulturalVibe – Home Screen (Events Tab)")
+@Composable
+fun HomeScreenPreview_Events() {
+    val dummyEvents = listOf(
+        Event(
+            id = 1,
+            title = "African Cultural Festival 2025",
+            date = null,
+            description = "A vibrant celebration of African music, dance, food, and art.",
+            venue = "Middlesbrough Town Hall",
+            fee = 25.0,
+            imageUrl = "https://images.unsplash.com/photo-1507874457470-272b3c8d8ee2?w=800"
+        ),
+        Event(
+            id = 2,
+            title = "Bollywood Night Extravaganza",
+            date = null,
+            description = "Dance to Bollywood beats, enjoy street food & colorful decorations!",
+            venue = "Teesside University SU",
+            fee = 15.0,
+            imageUrl = "https://images.unsplash.com/photo-1543007630-9710e4db7a4f?w=800"
+        ),
+        Event(
+            id = 3,
+            title = "Caribbean Carnival Workshop",
+            date = null,
+            description = "Learn carnival dance moves and make your own costume!",
+            venue = "Community Centre",
+            fee = 10.0,
+            imageUrl = "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=800"
+        )
+    )
+
+    Scaffold(
+        topBar = {
+            Column {
+                TopAppBar(
+                    title = { Text("CulturalVibe", fontSize = 22.sp, color = Color.White) },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF6A1B9A))
+                )
+                TabRow(
+                    selectedTabIndex = 0,
+                    containerColor = Color(0xFF6A1B9A),
+                    contentColor = Color.White
+                ) {
+                    Tab(selected = true, onClick = {}, text = { Text("Events") })
+                    Tab(selected = false, onClick = {}, text = { Text("Gallery") })
+                }
+            }
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {},
+                containerColor = Color(0xFFFF6B35),
+                contentColor = Color.White
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Add Event")
+            }
+        }
+    ) { paddingValues ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(dummyEvents) { event ->
+                EventCard(
+                    event = event,
+                    onBookmarkClick = {},
+                    onClick = {}
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true, name = "CulturalVibe – Home Screen (Gallery Tab)")
+@Composable
+fun HomeScreenPreview_Gallery() {
+    Scaffold(
+        topBar = {
+            Column {
+                TopAppBar(
+                    title = { Text("CulturalVibe", fontSize = 22.sp, color = Color.White) },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF6A1B9A))
+                )
+                TabRow(
+                    selectedTabIndex = 1,
+                    containerColor = Color(0xFF6A1B9A),
+                    contentColor = Color.White
+                ) {
+                    Tab(selected = false, onClick = {}, text = { Text("Events") })
+                    Tab(selected = true, onClick = {}, text = { Text("Gallery") })
+                }
+            }
+        }
+    ) { paddingValues ->
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(dummyGalleryImages.size) { index ->
+                Card(
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.cardElevation(4.dp)
+                ) {
+                    AsyncImage(
+                        model = dummyGalleryImages[index],
+                        contentDescription = "Gallery Image",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(160.dp)
+                    )
+                }
             }
         }
     }
