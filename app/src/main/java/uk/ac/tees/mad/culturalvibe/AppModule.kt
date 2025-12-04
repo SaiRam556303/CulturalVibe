@@ -7,6 +7,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import uk.ac.tees.mad.culturalvibe.data.local.CulturalVibeDatabase
 import uk.ac.tees.mad.culturalvibe.data.local.EventDao
@@ -30,7 +31,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideDatabase(context: Context): CulturalVibeDatabase {
+    fun provideDatabase(@ApplicationContext context: Context): CulturalVibeDatabase {
         return Room.databaseBuilder(
             context,
             CulturalVibeDatabase::class.java,

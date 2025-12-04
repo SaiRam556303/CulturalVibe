@@ -11,8 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -34,7 +35,7 @@ import uk.ac.tees.mad.culturalvibe.ui.theme.SecondaryColor
 import java.text.SimpleDateFormat
 
 @Composable
-fun EventCard(event: Event, onBookmarkClick: (Int) -> Unit, onClick: (Event) -> Unit) {
+fun EventCard(event: Event, showDeleteIcons:Boolean = false, onBookmarkClick: (event : Event) -> Unit, onClick: (Event) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -56,18 +57,26 @@ fun EventCard(event: Event, onBookmarkClick: (Int) -> Unit, onClick: (Event) -> 
                 )
 
                 IconButton(
-                    onClick = { onBookmarkClick(event.id) },
+                    onClick = { onBookmarkClick(event) },
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(8.dp)
                         .clip(RoundedCornerShape(50))
                         .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f))
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.BookmarkBorder ,
-                        contentDescription = "Bookmark",
-                        tint = SecondaryColor
-                    )
+                    if (showDeleteIcons) {
+                        Icon(
+                            imageVector = Icons.Default.DeleteOutline,
+                            contentDescription = "Bookmark",
+                            tint = Color.Red
+                        )
+                    }else{
+                        Icon(
+                            imageVector = Icons.Default.BookmarkBorder,
+                            contentDescription = "Bookmark",
+                            tint = SecondaryColor
+                        )
+                    }
                 }
             }
 

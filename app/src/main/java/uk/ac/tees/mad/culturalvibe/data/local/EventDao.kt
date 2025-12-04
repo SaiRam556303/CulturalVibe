@@ -1,5 +1,6 @@
 package uk.ac.tees.mad.culturalvibe.data.local
 import androidx.room.*
+import kotlinx.coroutines.flow.Flow
 import uk.ac.tees.mad.culturalvibe.data.models.Event
 
 @Dao
@@ -11,5 +12,5 @@ interface EventDao {
     suspend fun deleteBookmark(event: Event)
 
     @Query("SELECT * FROM bookmarked_events")
-    suspend fun getAllBookmarks(): List<Event>
+    fun getAllBookmarks(): Flow<List<Event>>
 }

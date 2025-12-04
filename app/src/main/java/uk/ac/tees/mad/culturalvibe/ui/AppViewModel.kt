@@ -12,7 +12,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import uk.ac.tees.mad.culturalvibe.data.local.EventDao
 import uk.ac.tees.mad.culturalvibe.data.models.Event
@@ -31,25 +34,28 @@ class AppViewModel @Inject constructor(
     val isUserLoggedIn = MutableStateFlow(false)
 
     val events = MutableStateFlow<List<Event>>(emptyList())
+
+    val bookmarkedEvents: StateFlow<List<Event>> =
+        eventDao.getAllBookmarks()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     init {
         isUserLoggedIn.value = auth.currentUser != null
         getEvents()
     }
 
-    fun addBookmark(event: Event) {
+    fun addBookmark(context: Context, event: Event) {
         viewModelScope.launch {
             eventDao.addBookmark(event)
+            Toast.makeText(context, "Added to bookmarks", Toast.LENGTH_SHORT).show()
         }
     }
-    fun removeBookmark(event: Event) {
+    fun removeBookmark(context: Context,event: Event) {
         viewModelScope.launch {
             eventDao.deleteBookmark(event)
         }
     }
 
-    fun getBookmarks(): Flow<List<Event>> = flow {
-        emit(eventDao.getAllBookmarks())
-    }
     fun registerToEvent(id: Int, context: Context) {
         val userUid = auth.currentUser?.uid
         if (userUid != null){
