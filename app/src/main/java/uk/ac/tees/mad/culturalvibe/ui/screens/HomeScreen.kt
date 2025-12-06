@@ -17,11 +17,14 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.PersonOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
@@ -35,12 +38,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 import uk.ac.tees.mad.culturalvibe.NavComponents
+import uk.ac.tees.mad.culturalvibe.R
 import uk.ac.tees.mad.culturalvibe.data.models.Event
 import uk.ac.tees.mad.culturalvibe.ui.AppViewModel
 import uk.ac.tees.mad.culturalvibe.ui.components.EventCard
@@ -75,6 +80,17 @@ fun HomeScreen(navController: NavController, viewModel: AppViewModel) {
                             fontSize = 22.sp,
                             color = OnSecondary
                         )
+                    },
+                    actions = {
+                        IconButton(onClick = {
+                            navController.navigate(NavComponents.ProfileScreen.route)
+                        }) {
+                            Icon(
+                                Icons.Rounded.Person,
+                                contentDescription = "Profile",
+                                tint = OnSecondary
+                            )
+                        }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = PrimaryColor

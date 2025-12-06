@@ -19,6 +19,7 @@ import uk.ac.tees.mad.culturalvibe.ui.AppViewModel
 import uk.ac.tees.mad.culturalvibe.ui.screens.AuthScreen
 import uk.ac.tees.mad.culturalvibe.ui.screens.EventDetailsScreen
 import uk.ac.tees.mad.culturalvibe.ui.screens.HomeScreen
+import uk.ac.tees.mad.culturalvibe.ui.screens.ProfileScreen
 import uk.ac.tees.mad.culturalvibe.ui.screens.RegistrationScreen
 import uk.ac.tees.mad.culturalvibe.ui.screens.SplashScreen
 import uk.ac.tees.mad.culturalvibe.ui.theme.CulturalVibeTheme
@@ -44,6 +45,8 @@ sealed class NavComponents(val route : String){
         fun passId(eventId: Int) = "eventDetails/$eventId"
     }
     object RegistrationScreen : NavComponents("registration")
+    object ProfileScreen : NavComponents("profile")
+    object EditProfileScreen : NavComponents("editProfile")
 }
 
 @Composable
@@ -76,6 +79,9 @@ fun App(modifier: Modifier = Modifier) {
         }
         composable(NavComponents.RegistrationScreen.route) {
             RegistrationScreen(navController, viewModel)
+        }
+        composable(NavComponents.ProfileScreen.route) {
+            ProfileScreen(navController, viewModel)
         }
     }
 }
