@@ -17,6 +17,7 @@ import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
 import uk.ac.tees.mad.culturalvibe.ui.AppViewModel
 import uk.ac.tees.mad.culturalvibe.ui.screens.AuthScreen
+import uk.ac.tees.mad.culturalvibe.ui.screens.EditProfileScreen
 import uk.ac.tees.mad.culturalvibe.ui.screens.EventDetailsScreen
 import uk.ac.tees.mad.culturalvibe.ui.screens.HomeScreen
 import uk.ac.tees.mad.culturalvibe.ui.screens.ProfileScreen
@@ -46,7 +47,6 @@ sealed class NavComponents(val route : String){
     }
     object RegistrationScreen : NavComponents("registration")
     object ProfileScreen : NavComponents("profile")
-    object EditProfileScreen : NavComponents("editProfile")
 }
 
 @Composable

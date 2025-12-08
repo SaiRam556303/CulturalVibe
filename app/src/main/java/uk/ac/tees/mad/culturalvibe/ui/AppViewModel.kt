@@ -7,14 +7,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import uk.ac.tees.mad.culturalvibe.data.local.EventDao
@@ -33,6 +33,7 @@ class AppViewModel @Inject constructor(
     val loading = mutableStateOf(false)
     val isUserLoggedIn = MutableStateFlow(false)
 
+    val userData = mutableStateOf<User?>(null)
     val events = MutableStateFlow<List<Event>>(emptyList())
 
     val bookmarkedEvents: StateFlow<List<Event>> =
@@ -42,6 +43,7 @@ class AppViewModel @Inject constructor(
     init {
         isUserLoggedIn.value = auth.currentUser != null
         getEvents()
+        getUserData()
     }
 
     fun addBookmark(context: Context, event: Event) {
@@ -86,6 +88,40 @@ class AppViewModel @Inject constructor(
         }
 
     }
+
+    fun updateUser(name: String, email: String, context: Context, onSuccess: () -> Unit) {
+        val uid = auth.currentUser?.uid ?: return
+
+        val updates = mapOf(
+            "name" to name,
+            "email" to email
+        )
+
+        firestore.collection("users").document(uid)
+            .set(updates, SetOptions.merge())
+            .addOnSuccessListener {
+                getUserData() // 🔹 Immediately refresh local state
+                Toast.makeText(context, "Profile updated", Toast.LENGTH_SHORT).show()
+                onSuccess()
+            }
+            .addOnFailureListener {
+                Toast.makeText(context, "Error: ${it.localizedMessage}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    fun getUserData() {
+        val uid = auth.currentUser?.uid ?: return
+        firestore.collection("users").document(uid).get()
+            .addOnSuccessListener {
+                userData.value = it.toObject(User::class.java) // 🔹 updates state
+            }
+            .addOnFailureListener {
+                Log.d("error", it.localizedMessage)
+            }
+    }
+
+
+
 
     fun getEvents(){
         firestore.collection("events").get()
