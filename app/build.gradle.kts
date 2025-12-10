@@ -45,7 +45,10 @@ android {
 dependencies {
 
     implementation("com.google.code.gson:gson:2.8.8")
-
+    implementation(platform("io.github.jan-tennert.supabase:bom:2.1.0"))
+    implementation("io.github.jan-tennert.supabase:storage-kt")
+    implementation("io.github.jan-tennert.supabase:postgrest-kt")
+    implementation("io.ktor:ktor-client-okhttp:2.3.3")
     implementation("androidx.compose.material3:material3:1.3.2")
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")

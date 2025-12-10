@@ -1,10 +1,19 @@
 package uk.ac.tees.mad.culturalvibe.ui.screens
 
+import android.Manifest
 import android.content.Context
+import android.graphics.Bitmap
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.launch
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,6 +26,11 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.PhotoLibrary
+import androidx.compose.material.icons.outlined.BrowseGallery
+import androidx.compose.material.icons.outlined.Camera
+import androidx.compose.material.icons.outlined.ImageSearch
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.PersonOutline
 import androidx.compose.material3.Card
@@ -33,6 +47,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -145,7 +160,7 @@ fun HomeScreen(navController: NavController, viewModel: AppViewModel) {
                     viewModel = viewModel,
                     navController = navController
                 )
-                1 -> GalleryScreen()
+                1 -> GalleryScreen(viewModel)
                 2 -> BookmarkScreen(
                     bookmarks = bookmarkedEvents,
                     context = context,
@@ -224,29 +239,83 @@ fun BookmarkScreen(
 
 
 @Composable
-fun GalleryScreen() {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(dummyGalleryImages.size) { index ->
-            Card(
-                shape = RoundedCornerShape(12.dp),
-                elevation = CardDefaults.cardElevation(4.dp),
-                modifier = Modifier.height(160.dp)
+fun GalleryScreen(viewModel: AppViewModel) {
+    val images = viewModel.images.collectAsState().value
+    val context = LocalContext.current
+
+    val pickImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        uri?.let {
+            viewModel.uploadImageToSupabase(it, context)
+        }
+    }
+    val takePhotoLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicturePreview(),
+    ) { bitmap: Bitmap? ->
+        bitmap?.let {
+            viewModel.uploadImageToSupabase(it, context)
+        }
+    }
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                takePhotoLauncher.launch()
+            } else {
+                Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    )
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchImages()
+    }
+
+    Scaffold(
+        floatingActionButton = {
+            Row(
+                modifier = Modifier.padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                AsyncImage(
-                    model = dummyGalleryImages[index],
-                    contentDescription = "Gallery Image",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize(),
-                )
+                FloatingActionButton(onClick = { pickImageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }) {
+                    Icon(Icons.Default.PhotoLibrary, contentDescription = "Gallery")
+                }
+
+                FloatingActionButton(onClick = {
+                    cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                }) {
+                    Icon(Icons.Default.CameraAlt, contentDescription = "Camera")
+                }
+
+            }
+        }
+    ) { innerPadding ->
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(innerPadding)
+                .padding(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(images.size) { index ->
+                Card(
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    modifier = Modifier.height(160.dp)
+                ) {
+                    AsyncImage(
+                        model = images[index],
+                        contentDescription = "Gallery Image",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
             }
         }
     }
 }
+
