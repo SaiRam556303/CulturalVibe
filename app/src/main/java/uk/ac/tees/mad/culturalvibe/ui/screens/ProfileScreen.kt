@@ -1,12 +1,15 @@
 package uk.ac.tees.mad.culturalvibe.ui.screens
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -31,9 +34,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -79,7 +84,7 @@ fun ProfileScreen(navController: NavController, viewModel: AppViewModel) {
                 modifier = Modifier.size(120.dp)
             ) {
                 AsyncImage(
-                    model = "https://i.pravatar.cc/300", // you can store photo url in Firestore later
+                    model = "https://i.pravatar.cc/300",
                     contentDescription = "Profile Picture",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
@@ -175,5 +180,108 @@ fun ProfileScreen(navController: NavController, viewModel: AppViewModel) {
                 }
             }
         )
+    }
+}
+
+@Preview(showBackground = true, name = "CulturalVibe – Profile Screen")
+@Composable
+fun ProfileScreenPreview() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFF5F5F5))
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Top Bar
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFF6D4C41))
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "Back",
+                tint = Color.White
+            )
+            Spacer(Modifier.width(16.dp))
+            Text(
+                "Profile",
+                color = Color.White,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        Spacer(Modifier.height(40.dp))
+
+        // Profile Picture
+        Card(
+            modifier = Modifier.size(120.dp),
+            shape = RoundedCornerShape(60.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFB74D)),
+            elevation = CardDefaults.cardElevation(8.dp)
+        ) {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                Text(
+                    "AR",
+                    color = Color.White,
+                    fontSize = 48.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
+        Spacer(Modifier.height(16.dp))
+
+        Text(
+            "Aisha Rahman",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black
+        )
+        Text(
+            "aisha.rahman@example.com",
+            fontSize = 16.sp,
+            color = Color(0xFF6D4C41)
+        )
+
+        Spacer(Modifier.height(48.dp))
+
+        // Action Buttons
+        Button(
+            onClick = {},
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFB74D)),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text("Edit Profile", color = Color.White, fontSize = 18.sp)
+        }
+
+        Button(
+            onClick = {},
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFB74D)),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text("My Registrations", color = Color.White, fontSize = 18.sp)
+        }
+
+        Button(
+            onClick = {},
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE53935)),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text("Logout", color = Color.White, fontSize = 18.sp)
+        }
     }
 }

@@ -12,11 +12,15 @@ import androidx.activity.result.launch
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -50,10 +54,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -103,7 +111,8 @@ fun HomeScreen(navController: NavController, viewModel: AppViewModel) {
                             Icon(
                                 Icons.Rounded.Person,
                                 contentDescription = "Profile",
-                                tint = OnSecondary
+                                tint = OnSecondary,
+                                modifier = Modifier.size(32.dp)
                             )
                         }
                     },
@@ -135,17 +144,6 @@ fun HomeScreen(navController: NavController, viewModel: AppViewModel) {
                 }
             }
         },
-        floatingActionButton = {
-            if (pagerState.currentPage == 0) {
-                FloatingActionButton(
-                    onClick = { /* navController.navigate("registration") */ },
-                    containerColor = SecondaryColor,
-                    contentColor = OnSecondary
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = "Add Event")
-                }
-            }
-        }
     ) { innerPadding ->
         HorizontalPager(
             state = pagerState,
@@ -276,20 +274,25 @@ fun GalleryScreen(viewModel: AppViewModel) {
         floatingActionButton = {
             Row(
                 modifier = Modifier.padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(20.dp)
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                FloatingActionButton(onClick = { pickImageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }) {
+                FloatingActionButton(onClick = { pickImageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+                    containerColor = SecondaryColor,
+                    contentColor = OnSecondary
+                ) {
                     Icon(Icons.Default.PhotoLibrary, contentDescription = "Gallery")
                 }
 
                 FloatingActionButton(onClick = {
                     cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-                }) {
+                },containerColor = SecondaryColor,
+                    contentColor = OnSecondary) {
                     Icon(Icons.Default.CameraAlt, contentDescription = "Camera")
                 }
 
             }
-        }
+        },
+        floatingActionButtonPosition = androidx.compose.material3.FabPosition.Center
     ) { innerPadding ->
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
@@ -319,3 +322,138 @@ fun GalleryScreen(viewModel: AppViewModel) {
     }
 }
 
+@Preview(showBackground = true, name = "CulturalVibe – Home Screen")
+@Composable
+fun HomeScreenPreview() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFF5F5F5))
+    ) {
+        // Top Bar
+        Column {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFF6D4C41))
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "CulturalVibe",
+                    color = Color.White,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.weight(1f))
+                Icon(
+                    imageVector = Icons.Rounded.Person,
+                    contentDescription = "Profile",
+                    tint = Color.White,
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+
+            // Tabs
+            TabRow(
+                selectedTabIndex = 0,
+                containerColor = Color(0xFF6D4C41),
+                contentColor = Color.White
+            ) {
+                Tab(selected = true, onClick = {}, text = { Text("Events") })
+                Tab(selected = false, onClick = {}, text = { Text("Gallery") })
+                Tab(selected = false, onClick = {}, text = { Text("Bookmarks") })
+            }
+        }
+
+        Spacer(Modifier.height(24.dp))
+
+        // Events Tab Content
+        LazyColumn(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(3) { index ->
+                val titles = listOf(
+                    "Bollywood Dance Festival",
+                    "Diwali Celebration 2025",
+                    "Punjabi Food Fair"
+                )
+                val venues = listOf("Albert Park", "Town Hall", "University Campus")
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(6.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(180.dp)
+                                .background(Color(0xFFFFB74D), RoundedCornerShape(12.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("EVENT", color = Color.White, fontSize = 24.sp)
+                        }
+
+                        Spacer(Modifier.height(12.dp))
+
+                        Text(
+                            titles[index],
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                        Text("Venue: ${venues[index]}", color = Color(0xFF666666))
+                        Text("15 Oct 2025 • 6:00 PM", color = Color(0xFF6D4C41))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "CulturalVibe – Gallery Tab")
+@Composable
+fun GalleryTabPreview() {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFF5F5F5))
+            .padding(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(6) {
+            Card(
+                modifier = Modifier.height(160.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0)),
+                elevation = CardDefaults.cardElevation(4.dp)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text("PHOTO", color = Color(0xFF6D4C41), fontSize = 18.sp)
+                }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "CulturalVibe – Bookmarks Tab")
+@Composable
+fun BookmarksTabPreview() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFF5F5F5)),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text("No bookmarks yet", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+        Spacer(Modifier.height(8.dp))
+        Text("Save your favorite events here!", color = Color.Gray)
+    }
+}

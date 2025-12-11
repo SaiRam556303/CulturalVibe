@@ -32,10 +32,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -224,6 +226,207 @@ fun AuthForm(
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold
             )
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "CulturalVibe – Auth Screen (Login)")
+@Composable
+fun AuthScreenLoginPreview() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF6D4C41)), // PrimaryColor brown
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .background(Color.White, RoundedCornerShape(20.dp))
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // App Icon
+            Box(
+                modifier = Modifier
+                    .size(90.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFFFFB74D)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("CV", color = Color.White, fontSize = 32.sp, fontWeight = FontWeight.Bold)
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            Text(
+                "Welcome to CulturalVibe",
+                fontSize = 18.sp,
+                color = Color(0xFF6D4C41),
+                fontWeight = FontWeight.SemiBold
+            )
+
+            Spacer(Modifier.height(24.dp))
+
+            Text(
+                "Login to Continue",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF6D4C41)
+            )
+
+            Spacer(Modifier.height(32.dp))
+
+            OutlinedTextField(
+                value = "john.doe@example.com",
+                onValueChange = {},
+                label = { Text("Email") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFF6D4C41),
+                    unfocusedBorderColor = Color.LightGray,
+                    focusedLabelColor = Color(0xFF6D4C41)
+                )
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = "••••••••",
+                onValueChange = {},
+                label = { Text("Password") },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFF6D4C41),
+                    unfocusedBorderColor = Color.LightGray,
+                    focusedLabelColor = Color(0xFF6D4C41)
+                )
+            )
+
+            Spacer(Modifier.height(32.dp))
+
+            Button(
+                onClick = {},
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFB74D))
+            ) {
+                Text("Login", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            }
+
+            Spacer(Modifier.height(20.dp))
+
+            Row {
+                Text("Don't have an account? ", color = Color(0xFF6D4C41))
+                Text(
+                    "Sign Up",
+                    color = Color(0xFFFFB74D),
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "CulturalVibe – Auth Screen (Sign Up)")
+@Composable
+fun AuthScreenSignUpPreview() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF6D4C41)),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .background(Color.White, RoundedCornerShape(20.dp))
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(90.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFFFFB74D)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("CV", color = Color.White, fontSize = 32.sp, fontWeight = FontWeight.Bold)
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            Text(
+                "Welcome to CulturalVibe",
+                fontSize = 18.sp,
+                color = Color(0xFF6D4C41),
+                fontWeight = FontWeight.SemiBold
+            )
+
+            Spacer(Modifier.height(24.dp))
+
+            Text(
+                "Create an Account",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF6D4C41)
+            )
+
+            Spacer(Modifier.height(32.dp))
+
+            OutlinedTextField(
+                value = "Aisha Khan",
+                onValueChange = {},
+                label = { Text("Full Name") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp)
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = "aisha@example.com",
+                onValueChange = {},
+                label = { Text("Email") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp)
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = "••••••••",
+                onValueChange = {},
+                label = { Text("Password") },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp)
+            )
+
+            Spacer(Modifier.height(32.dp))
+
+            Button(
+                onClick = {},
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFB74D))
+            ) {
+                Text("Sign Up", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            }
+
+            Spacer(Modifier.height(20.dp))
+
+            Row {
+                Text("Already registered? ", color = Color(0xFF6D4C41))
+                Text("Login", color = Color(0xFFFFB74D), fontWeight = FontWeight.Bold)
+            }
         }
     }
 }

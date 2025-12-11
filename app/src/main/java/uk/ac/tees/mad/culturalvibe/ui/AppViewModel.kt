@@ -1,6 +1,6 @@
 package uk.ac.tees.mad.culturalvibe.ui
 
-import android.content.Context
+import android.Manifest
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
@@ -9,7 +9,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -25,7 +24,12 @@ import uk.ac.tees.mad.culturalvibe.data.models.User
 import uk.ac.tees.mad.culturalvibe.data.repository.GalleryRepository
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
-
+import android.content.Context
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
+import androidx.annotation.RequiresPermission
 
 @HiltViewModel
 class AppViewModel @Inject constructor(
@@ -52,6 +56,35 @@ class AppViewModel @Inject constructor(
         getUserData()
         fetchImages()
     }
+
+    fun vibratePhone(context: Context, unregister: Boolean = false, removal: Boolean = false) {
+        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val vm = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+            vm.defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            when {
+                unregister -> vibrator.vibrate(
+                    VibrationEffect.createWaveform(longArrayOf(0, 100, 50, 100), -1)
+                )
+                removal -> vibrator.vibrate(
+                    VibrationEffect.createOneShot(80, VibrationEffect.DEFAULT_AMPLITUDE)
+                )
+                else -> vibrator.vibrate(
+                    VibrationEffect.createOneShot(150, VibrationEffect.DEFAULT_AMPLITUDE)
+                )
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            vibrator.vibrate(if (unregister) 300 else if (removal) 80 else 150)
+        }
+    }
+
+
 
     fun uploadImageToSupabase(uri: Uri, context: Context) {
         viewModelScope.launch {
@@ -84,6 +117,7 @@ class AppViewModel @Inject constructor(
                 val bucket = repository.storage.from("CulturalVibe")
                 bucket.upload(fileName, bytes)
                 Toast.makeText(context, "Uploaded successfully!", Toast.LENGTH_SHORT).show()
+                vibratePhone(context)
                 fetchImages()
             } catch (e: Exception) {
                 Toast.makeText(context, "Upload failed: ${e.localizedMessage}", Toast.LENGTH_SHORT)
@@ -101,6 +135,7 @@ class AppViewModel @Inject constructor(
     fun addBookmark(context: Context, event: Event) {
         viewModelScope.launch {
             eventDao.addBookmark(event)
+            vibratePhone(context)
             Toast.makeText(context, "Added to bookmarks", Toast.LENGTH_SHORT).show()
         }
     }
@@ -108,16 +143,20 @@ class AppViewModel @Inject constructor(
     fun removeBookmark(context: Context, event: Event) {
         viewModelScope.launch {
             eventDao.deleteBookmark(event)
+            vibratePhone(context, removal = true)
+            Toast.makeText(context, "Removed from bookmarks", Toast.LENGTH_SHORT).show()
         }
     }
 
-    fun registerToEvent(id: Int, context: Context) {
+    fun registerToEvent(id: Int, context: Context, onSuccess: () -> Unit) {
         val userUid = auth.currentUser?.uid
         if (userUid != null) {
             firestore.collection("events").document(id.toString())
                 .update("registeredUser", FieldValue.arrayUnion(userUid)).addOnSuccessListener {
                 Toast.makeText(context, "Registered Successfully", Toast.LENGTH_SHORT).show()
                 getEvents()
+                    vibratePhone(context)
+                    onSuccess()
             }.addOnFailureListener {
                 Toast.makeText(context, it.localizedMessage, Toast.LENGTH_SHORT).show()
             }
@@ -130,13 +169,15 @@ class AppViewModel @Inject constructor(
         return auth.currentUser?.uid in event.registeredUser
     }
 
-    fun unregisterFromEvent(id: Int, context: Context) {
+    fun unregisterFromEvent(id: Int, context: Context, onSuccess: () -> Unit) {
         val userUid = auth.currentUser?.uid
         if (userUid != null) {
             firestore.collection("events").document(id.toString())
                 .update("registeredUser", FieldValue.arrayRemove(userUid)).addOnSuccessListener {
                 Toast.makeText(context, "Unregistered Successfully", Toast.LENGTH_SHORT).show()
                 getEvents()
+                    vibratePhone(context, unregister = true)
+                    onSuccess()
             }.addOnFailureListener {
                 Toast.makeText(context, it.localizedMessage, Toast.LENGTH_SHORT).show()
             }
@@ -168,7 +209,7 @@ class AppViewModel @Inject constructor(
         val uid = auth.currentUser?.uid ?: return
         firestore.collection("users").document(uid).get()
             .addOnSuccessListener {
-                userData.value = it.toObject(User::class.java) // 🔹 updates state
+                userData.value = it.toObject(User::class.java)
             }
             .addOnFailureListener {
                 Log.d("error", it.localizedMessage)
@@ -204,7 +245,9 @@ class AppViewModel @Inject constructor(
                 ).addOnSuccessListener {
                     loading.value = false
                     isUserLoggedIn.value = true
-                    fetchUserDetails()
+                    getEvents()
+                    getUserData()
+                    fetchImages()
                     Toast.makeText(context, "Signup Successful", Toast.LENGTH_SHORT).show()
                 }.addOnFailureListener {
                     loading.value = false
@@ -219,18 +262,13 @@ class AppViewModel @Inject constructor(
             .addOnSuccessListener {
                 loading.value = false
                 isUserLoggedIn.value = true
-                fetchUserDetails()
+                getEvents()
+                getUserData()
+                fetchImages()
                 Toast.makeText(context, "Login Successful", Toast.LENGTH_SHORT).show()
             }.addOnFailureListener {
                 loading.value = false
                 Toast.makeText(context, it.localizedMessage, Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    fun fetchUserDetails() {
-        firestore.collection("users").document(auth.currentUser!!.uid).get()
-            .addOnSuccessListener {
-                val user = it.toObject(User::class.java)
             }
     }
 

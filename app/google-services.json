@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "538883155554",
-    "project_id": "culturalvibe-23cbe",
-    "storage_bucket": "culturalvibe-23cbe.firebasestorage.app"
+    "project_number": "957331420762",
+    "project_id": "culturalvvibe",
+    "storage_bucket": "culturalvvibe.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:538883155554:android:c1707bd660dbc5f980133b",
+        "mobilesdk_app_id": "1:957331420762:android:2adacfea853dec6637ca63",
         "android_client_info": {
           "package_name": "uk.ac.tees.mad.culturalvibe"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyA3Bf2KZXEdWISFfBCgh_FmpVYlIgga5e0"
+          "current_key": "AIzaSyACSsT0rnQZdjpekRbgpVh7Ni8QFDBlp84"
         }
       ],
       "services": {
